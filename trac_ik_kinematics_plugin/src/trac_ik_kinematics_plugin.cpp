@@ -106,7 +106,8 @@ bool TRAC_IKKinematicsPlugin::initialize(
     }
 
     // Same as MoveIt's KDL plugin
-    const double epsilon = 1e-5;
+    double epsilon;
+    lookupParam("epsilon", epsilon, 1e-5);
 
     solver_.reset(new TRAC_IK::TRAC_IK(
             chain_, joint_min_, joint_max_, 1000, epsilon, solve_type_));
