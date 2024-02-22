@@ -74,9 +74,8 @@ bool TRAC_IKKinematicsPlugin::initialize(
     tmp_in_.resize(chain_.getNrOfJoints());
     tmp_out_.resize(chain_.getNrOfJoints());
 
-    ROS_DEBUG_NAMED("trac-ik plugin", "Looking in private handle: %s for param name: %s", node_handle.getNamespace().c_str(), (group_name + "/position_only_ik").c_str());
-
-    node_handle.param(group_name + "/position_only_ik", position_ik_, false);
+    lookupParam("position_only_ik", position_ik_, false);
+    ROS_DEBUG_STREAM_NAMED("trac_ik plugin", "Position only IK = " << position_ik_);
 
     bounds_ = KDL::Twist::Zero();
 
@@ -86,10 +85,8 @@ bool TRAC_IKKinematicsPlugin::initialize(
         bounds_.rot.z(std::numeric_limits<float>::max());
     }
 
-    ROS_DEBUG_NAMED("trac-ik plugin", "Looking in private handle: %s for param name: %s", node_handle.getNamespace().c_str(), (group_name + "/solve_type").c_str());
-
     std::string solve_type;
-    node_handle.param(group_name + "/solve_type", solve_type, std::string("Speed"));
+    lookupParam("solve_type", solve_type, std::string("Speed"));
     ROS_DEBUG_NAMED("trac_ik plugin", "Using solve type %s", solve_type.c_str());
 
     if (solve_type == "Manipulation1") {
