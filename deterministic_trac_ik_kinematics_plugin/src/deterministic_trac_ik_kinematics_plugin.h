@@ -31,21 +31,21 @@ OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <moveit/kinematics_base/kinematics_base.h>
 #include <kdl/chain.hpp>
 #include <kdl/jntarray.hpp>
-#include <trac_ik/trac_ik.hpp>
+#include <deterministic_trac_ik/deterministic_trac_ik.hpp>
 
-namespace trac_ik_kinematics_plugin {
+namespace deterministic_trac_ik_kinematics_plugin {
 
-class TRAC_IKKinematicsPlugin: public kinematics::KinematicsBase
+class Deterministic_TRAC_IKKinematicsPlugin: public kinematics::KinematicsBase
 {
 public:
 
     /** @class
      *  @brief Interface for an TRAC-IK kinematics plugin
      */
-    TRAC_IKKinematicsPlugin() :
+    Deterministic_TRAC_IKKinematicsPlugin() :
         active_(false),
         position_ik_(false),
-        solve_type_(TRAC_IK::Speed),
+        solve_type_(Deterministic_TRAC_IK::Speed),
         iter_per_time_(1500 / 0.005)
     { }
 
@@ -183,9 +183,9 @@ private:
     bool active_;
 
     bool position_ik_;
-    TRAC_IK::SolveType solve_type_;
+    Deterministic_TRAC_IK::SolveType solve_type_;
 
-    std::unique_ptr<TRAC_IK::TRAC_IK> solver_;
+    std::unique_ptr<Deterministic_TRAC_IK::Deterministic_TRAC_IK> solver_;
 
     double iter_per_time_;
 
@@ -209,4 +209,4 @@ private:
     int getKDLSegmentIndex(const std::string &name) const;
 };
 
-} // namespace trac_ik_kinematics_plugin
+} // namespace deterministic_trac_ik_kinematics_plugin

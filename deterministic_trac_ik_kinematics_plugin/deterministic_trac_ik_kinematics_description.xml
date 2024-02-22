@@ -1,0 +1,7 @@
+<library path="lib/libdeterministic_trac_ik_kinematics_plugin">
+  <class name="deterministic_trac_ik_kinematics_plugin/Deterministic_TRAC_IKKinematicsPlugin" type="deterministic_trac_ik_kinematics_plugin::Deterministic_TRAC_IKKinematicsPlugin" base_class_type="kinematics::KinematicsBase">
+    <description>
+      A implementation of kinematics as a plugin based on TRAC-IK (deterministic version).
+    </description>
+  </class>
+</library>

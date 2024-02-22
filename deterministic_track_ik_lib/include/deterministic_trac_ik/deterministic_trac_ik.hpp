@@ -28,8 +28,8 @@ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISE
 OF THE POSSIBILITY OF SUCH DAMAGE.
 ********************************************************************************/
 
-#ifndef TRAC_IK_HPP
-#define TRAC_IK_HPP
+#ifndef DETERMINISTIC_TRAC_IK_HPP
+#define DETERMINISTIC_TRAC_IK_HPP
 
 // standard includes
 #include <random>
@@ -38,9 +38,9 @@ OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <kdl/chainjnttojacsolver.hpp>
 
 // project includes
-#include <trac_ik/nlopt_ik.hpp>
+#include <deterministic_trac_ik/nlopt_ik.hpp>
 
-namespace TRAC_IK {
+namespace Deterministic_TRAC_IK {
 
 enum SolveType
 {
@@ -50,11 +50,11 @@ enum SolveType
     Manip2
 };
 
-class TRAC_IK
+class Deterministic_TRAC_IK
 {
 public:
 
-    TRAC_IK(
+    Deterministic_TRAC_IK(
         const KDL::Chain& _chain,
         const KDL::JntArray& _q_min,
         const KDL::JntArray& _q_max,
@@ -121,6 +121,6 @@ private:
     double ManipValue2(const KDL::JntArray&);
 };
 
-} // namespace TRAC_IK
+} // namespace Deterministic_TRAC_IK
 
 #endif

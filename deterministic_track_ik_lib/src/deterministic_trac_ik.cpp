@@ -28,7 +28,7 @@ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISE
 OF THE POSSIBILITY OF SUCH DAMAGE.
 ********************************************************************************/
 
-#include <trac_ik/trac_ik.hpp>
+#include <deterministic_trac_ik/deterministic_trac_ik.hpp>
 
 // standard includes
 #include <chrono>
@@ -43,9 +43,9 @@ OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <urdf/model.h>
 
 // project includes
-#include <trac_ik/utils.h>
+#include <deterministic_trac_ik/utils.h>
 
-namespace TRAC_IK {
+namespace Deterministic_TRAC_IK {
 
 inline double JointErr(
     const KDL::JntArray& q1,
@@ -59,7 +59,7 @@ inline double JointErr(
     return err;
 }
 
-TRAC_IK::TRAC_IK(
+Deterministic_TRAC_IK::Deterministic_TRAC_IK(
     const KDL::Chain& chain,
     const KDL::JntArray& q_min,
     const KDL::JntArray& q_max,
@@ -103,14 +103,14 @@ TRAC_IK::TRAC_IK(
     assert(joint_types_.size() == joint_min_.data.size());
 }
 
-void TRAC_IK::setBounds(const KDL::Twist& bounds)
+void Deterministic_TRAC_IK::setBounds(const KDL::Twist& bounds)
 {
     bounds_ = bounds;
     nl_solver_.setBounds(bounds);
     ik_solver_.setBounds(bounds);
 }
 
-bool TRAC_IK::unique_solution(const KDL::JntArray& sol)
+bool Deterministic_TRAC_IK::unique_solution(const KDL::JntArray& sol)
 {
     auto myEqual = [](const KDL::JntArray& a, const KDL::JntArray& b) {
         return (a.data - b.data).isZero(1e-4);
@@ -158,7 +158,7 @@ inline void normalizeAngle(double& val, const double& target)
     }
 }
 
-void TRAC_IK::randomize(KDL::JntArray& q, const KDL::JntArray& q_init)
+void Deterministic_TRAC_IK::randomize(KDL::JntArray& q, const KDL::JntArray& q_init)
 {
     for (size_t j = 0; j < q.data.size(); ++j) {
         if (joint_types_[j] == KDL::BasicJointType::Continuous) {
@@ -174,7 +174,7 @@ void TRAC_IK::randomize(KDL::JntArray& q, const KDL::JntArray& q_init)
     }
 }
 
-void TRAC_IK::normalize_seed(
+void Deterministic_TRAC_IK::normalize_seed(
     const KDL::JntArray& seed,
     KDL::JntArray& solution)
 {
@@ -202,7 +202,7 @@ void TRAC_IK::normalize_seed(
     }
 }
 
-void TRAC_IK::normalize_limits(
+void Deterministic_TRAC_IK::normalize_limits(
     const KDL::JntArray& seed,
     KDL::JntArray& solution)
 {
@@ -237,7 +237,7 @@ void TRAC_IK::normalize_limits(
     }
 }
 
-double TRAC_IK::manipPenalty(const KDL::JntArray& arr)
+double Deterministic_TRAC_IK::manipPenalty(const KDL::JntArray& arr)
 {
     double penalty = 1.0;
     for (uint i = 0; i < arr.data.size(); i++) {
@@ -250,7 +250,7 @@ double TRAC_IK::manipPenalty(const KDL::JntArray& arr)
     return std::max(0.0, 1.0 - exp(-1 * penalty));
 }
 
-double TRAC_IK::ManipValue1(const KDL::JntArray& arr)
+double Deterministic_TRAC_IK::ManipValue1(const KDL::JntArray& arr)
 {
     KDL::Jacobian jac(arr.data.size());
 
@@ -266,7 +266,7 @@ double TRAC_IK::ManipValue1(const KDL::JntArray& arr)
     return error;
 }
 
-double TRAC_IK::ManipValue2(const KDL::JntArray& arr)
+double Deterministic_TRAC_IK::ManipValue2(const KDL::JntArray& arr)
 {
     KDL::Jacobian jac(arr.data.size());
 
@@ -278,7 +278,7 @@ double TRAC_IK::ManipValue2(const KDL::JntArray& arr)
     return singular_values.minCoeff() / singular_values.maxCoeff();
 }
 
-int TRAC_IK::CartToJnt(
+int Deterministic_TRAC_IK::CartToJnt(
     const KDL::JntArray &q_init,
     const KDL::Frame &p_in,
     KDL::JntArray &q_out,
@@ -316,9 +316,9 @@ int TRAC_IK::CartToJnt(
             auto before = std::chrono::high_resolution_clock::now();
             int rc = ik_solver_.step(step_size);
             auto after = std::chrono::high_resolution_clock::now();
-            ROS_DEBUG_THROTTLE_NAMED(1.0, "trac_ik", "kdl step took %f seconds", std::chrono::duration<double>(after - before).count());
+            ROS_DEBUG_THROTTLE_NAMED(1.0, "deterministic_trac_ik", "kdl step took %f seconds", std::chrono::duration<double>(after - before).count());
             if (rc == 0) {
-                ROS_DEBUG_NAMED("trac_ik", "KDL found solution on iteration %d", i);
+                ROS_DEBUG_NAMED("deterministic_trac_ik", "KDL found solution on iteration %d", i);
 
                 q_out = ik_solver_.qout();
 
@@ -341,10 +341,10 @@ int TRAC_IK::CartToJnt(
                     double err;
                     switch (solve_type_) {
                     case Manip1:
-                        err = manipPenalty(q_out) * TRAC_IK::ManipValue1(q_out);
+                        err = manipPenalty(q_out) * Deterministic_TRAC_IK::ManipValue1(q_out);
                         break;
                     case Manip2:
-                        err = manipPenalty(q_out) * TRAC_IK::ManipValue2(q_out);
+                        err = manipPenalty(q_out) * Deterministic_TRAC_IK::ManipValue2(q_out);
                         break;
                     default:
                         err = JointErr(q_init, q_out);
@@ -366,9 +366,9 @@ int TRAC_IK::CartToJnt(
             auto before = std::chrono::high_resolution_clock::now();
             int rc =  nl_solver_.step(step_size); // for some reason, 1 and 2 produce no solutions
             auto after = std::chrono::high_resolution_clock::now();
-            ROS_DEBUG_THROTTLE_NAMED(1.0, "trac_ik", "nlopt step took %f seconds", std::chrono::duration<double>(after - before).count());
+            ROS_DEBUG_THROTTLE_NAMED(1.0, "deterministic_trac_ik", "nlopt step took %f seconds", std::chrono::duration<double>(after - before).count());
             if (rc == 0) {
-                ROS_DEBUG_NAMED("trac_ik", "NLOPT found solution on iteration %d", i);
+                ROS_DEBUG_NAMED("deterministic_trac_ik", "NLOPT found solution on iteration %d", i);
 
                 q_out = nl_solver_.qout();
 
@@ -391,10 +391,10 @@ int TRAC_IK::CartToJnt(
                     double err;
                     switch (solve_type_) {
                     case Manip1:
-                        err = manipPenalty(q_out) * TRAC_IK::ManipValue1(q_out);
+                        err = manipPenalty(q_out) * Deterministic_TRAC_IK::ManipValue1(q_out);
                         break;
                     case Manip2:
-                        err = manipPenalty(q_out) * TRAC_IK::ManipValue2(q_out);
+                        err = manipPenalty(q_out) * Deterministic_TRAC_IK::ManipValue2(q_out);
                         break;
                     default:
                         err = JointErr(q_init, q_out);
@@ -411,14 +411,14 @@ int TRAC_IK::CartToJnt(
             solver = SOLVER_KDL;
         }   break;
         default: {
-            ROS_ERROR_NAMED("trac_ik", "Unknown solver type");
+            ROS_ERROR_NAMED("deterministic_trac_ik", "Unknown solver type");
             assert(0);
         }   break;
         }
     }
 
     if (solutions_.empty()) {
-        ROS_DEBUG_NAMED("trac_ik", "Failed to find solution");
+        ROS_DEBUG_NAMED("deterministic_trac_ik", "Failed to find solution");
         return -3;
     }
 
@@ -441,4 +441,4 @@ int TRAC_IK::CartToJnt(
     return solutions_.size();
 }
 
-} // namespace TRAC_IK
+} // namespace Deterministic_TRAC_IK

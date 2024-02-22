@@ -32,8 +32,8 @@ OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <boost/date_time.hpp>
 #include <kdl/chainiksolverpos_nr_jl.hpp>
 #include <ros/ros.h>
-#include <trac_ik/trac_ik.hpp>
-#include <trac_ik/utils.h>
+#include <deterministic_trac_ik/deterministic_trac_ik.hpp>
+#include <deterministic_trac_ik/utils.h>
 
 void test(
     ros::NodeHandle& nh,
@@ -52,23 +52,23 @@ void test(
     ros::NodeHandle node_handle("~");
     urdf::Model robot_model;
 
-    if (!TRAC_IK::LoadModelOverride(node_handle, robot_description, robot_model)) {
-        ROS_WARN_STREAM_NAMED("trac_ik", "Failed to load robot model");
+    if (!Deterministic_TRAC_IK::LoadModelOverride(node_handle, robot_description, robot_model)) {
+        ROS_WARN_STREAM_NAMED("deterministic_trac_ik", "Failed to load robot model");
         return;
     }
 
-    ROS_DEBUG_STREAM_NAMED("trac_ik","Reading joints and links from URDF");
+    ROS_DEBUG_STREAM_NAMED("deterministic_trac_ik","Reading joints and links from URDF");
 
     KDL::Chain chain;
     std::vector<std::string> link_names;
     std::vector<std::string> joint_names;
     KDL::JntArray joint_min;
     KDL::JntArray joint_max;
-    if (!TRAC_IK::InitKDLChain(
+    if (!Deterministic_TRAC_IK::InitKDLChain(
         robot_model, base_name, tip_name,
         chain, link_names, joint_names, joint_min, joint_max))
     {
-        ROS_WARN_STREAM_NAMED("trac_ik", "Failed to initialize KDL chain");
+        ROS_WARN_STREAM_NAMED("deterministic_trac_ik", "Failed to initialize KDL chain");
         return;
     }
 
@@ -77,8 +77,8 @@ void test(
     ROS_INFO("joint_min: %zu", joint_min.data.size());
     ROS_INFO("joint_max: %zu", joint_max.data.size());
 
-    TRAC_IK::TRAC_IK tracik_solver(
-            chain, joint_min, joint_max, max_iterations, eps, TRAC_IK::Speed);
+    Deterministic_TRAC_IK::Deterministic_TRAC_IK tracik_solver(
+            chain, joint_min, joint_max, max_iterations, eps, Deterministic_TRAC_IK::Speed);
 
     auto& ll = tracik_solver.getLowerLimits();
     auto& ul = tracik_solver.getUpperLimits();

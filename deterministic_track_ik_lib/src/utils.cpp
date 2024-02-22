@@ -1,11 +1,11 @@
-#include <trac_ik/utils.h>
+#include <deterministic_trac_ik/utils.h>
 
 #include <assert.h>
 
 #include <kdl/tree.hpp>
 #include <kdl_parser/kdl_parser.hpp>
 
-namespace TRAC_IK {
+namespace Deterministic_TRAC_IK {
 
 /// Loads a URDF model from ROS parameter. Additionally, the model may be
 /// overridden by a custom model specified by the 'urdf_xml' ROS parameter in
@@ -29,9 +29,9 @@ bool LoadModelOverride(
     std::string full_urdf_xml;
     nh.searchParam(urdf_xml, full_urdf_xml);
 
-    ROS_DEBUG_NAMED("trac_ik","Reading xml file from parameter server");
+    ROS_DEBUG_NAMED("deterministic_trac_ik","Reading xml file from parameter server");
     if (!nh.getParam(full_urdf_xml, xml_string)) {
-        ROS_FATAL_NAMED("trac_ik", "Could not load the xml from parameter server: %s", urdf_xml.c_str());
+        ROS_FATAL_NAMED("deterministic_trac_ik", "Could not load the xml from parameter server: %s", urdf_xml.c_str());
         return false;
     }
 
@@ -53,12 +53,12 @@ bool InitKDLChain(
     KDL::Tree tree;
 
     if (!kdl_parser::treeFromUrdfModel(model, tree)) {
-        ROS_ERROR_NAMED("trac_ik", "Failed to extract kdl tree from xml robot description");
+        ROS_ERROR_NAMED("deterministic_trac_ik", "Failed to extract kdl tree from xml robot description");
         return false;
     }
 
     if (!tree.getChain(base_name, tip_name, chain)) {
-        ROS_ERROR_NAMED("trac_ik", "Couldn't find chain %s to %s", base_name.c_str(), tip_name.c_str());
+        ROS_ERROR_NAMED("deterministic_trac_ik", "Couldn't find chain %s to %s", base_name.c_str(), tip_name.c_str());
         return false;
     }
 
@@ -103,7 +103,7 @@ bool InitKDLChain(
     return true;
 }
 
-} // namespace TRAC_IK
+} // namespace Deterministic_TRAC_IK
 
 namespace KDL {
 

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(trac_ik_lib)
+project(deterministic_trac_ik_lib)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang"))
     set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
@@ -34,7 +34,7 @@ catkin_package(
   INCLUDE_DIRS
     include ${EIGEN3_INCLUDE_DIR} ${pkg_nlopt_INCLUDE_DIRS}
   LIBRARIES
-    trac_ik ${pkg_nlopt_LIBRARIES}
+    deterministic_trac_ik ${pkg_nlopt_LIBRARIES}
 )
 
 include_directories(
@@ -45,12 +45,12 @@ include_directories(
   ${pkg_nlopt_INCLUDE_DIRS}
 )
 
-add_library(trac_ik
+add_library(deterministic_trac_ik
   src/kdl_tl.cpp
   src/nlopt_ik.cpp
-  src/trac_ik.cpp
+  src/deterministic_trac_ik.cpp
   src/utils.cpp)
-target_link_libraries(trac_ik
+target_link_libraries(deterministic_trac_ik
   ${catkin_LIBRARIES}
   ${pkg_nlopt_LIBRARIES}
   ${Boost_LIBRARIES})
@@ -59,7 +59,7 @@ install(DIRECTORY include/
   DESTINATION ${CATKIN_GLOBAL_INCLUDE_DESTINATION}
 )
 
-install(TARGETS trac_ik
+install(TARGETS deterministic_trac_ik
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

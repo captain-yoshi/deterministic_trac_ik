@@ -28,7 +28,7 @@ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISE
 OF THE POSSIBILITY OF SUCH DAMAGE.
 ********************************************************************************/
 
-#include <trac_ik/kdl_tl.hpp>
+#include <deterministic_trac_ik/kdl_tl.hpp>
 
 // standard includes
 #include <limits>
@@ -37,7 +37,7 @@ OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <ros/ros.h>
 
 // project includes
-#include <trac_ik/utils.h>
+#include <deterministic_trac_ik/utils.h>
 
 namespace KDL {
 

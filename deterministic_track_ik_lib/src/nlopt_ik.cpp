@@ -28,7 +28,7 @@ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISE
 OF THE POSSIBILITY OF SUCH DAMAGE.
 ********************************************************************************/
 
-#include <trac_ik/nlopt_ik.hpp>
+#include <deterministic_trac_ik/nlopt_ik.hpp>
 
 // standard includes
 #include <cmath>
@@ -39,8 +39,8 @@ OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <ros/ros.h>
 
 // project includes
-#include <trac_ik/dual_quaternion.h>
-#include <trac_ik/utils.h>
+#include <deterministic_trac_ik/dual_quaternion.h>
+#include <deterministic_trac_ik/utils.h>
 
 namespace NLOPT_IK {
 

@@ -35,8 +35,8 @@ OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <nlopt.hpp>
 
 // project includes
-#include <trac_ik/dual_quaternion.h>
-#include <trac_ik/kdl_tl.hpp>
+#include <deterministic_trac_ik/dual_quaternion.h>
+#include <deterministic_trac_ik/kdl_tl.hpp>
 
 namespace NLOPT_IK {
 

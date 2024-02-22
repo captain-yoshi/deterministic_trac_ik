@@ -28,7 +28,7 @@ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISE
 OF THE POSSIBILITY OF SUCH DAMAGE.
 ********************************************************************************/
 
-#include "trac_ik_kinematics_plugin.h"
+#include "deterministic_trac_ik_kinematics_plugin.h"
 
 #include <algorithm>
 #include <limits>
@@ -36,13 +36,13 @@ OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <kdl/tree.hpp>
 #include <ros/ros.h>
 #include <tf_conversions/tf_kdl.h>
-#include <trac_ik/trac_ik.hpp>
-#include <trac_ik/utils.h>
+#include <deterministic_trac_ik/deterministic_trac_ik.hpp>
+#include <deterministic_trac_ik/utils.h>
 #include <urdf/model.h>
 
-namespace trac_ik_kinematics_plugin {
+namespace deterministic_trac_ik_kinematics_plugin {
 
-bool TRAC_IKKinematicsPlugin::initialize(
+bool Deterministic_TRAC_IKKinematicsPlugin::initialize(
     const std::string& robot_description,
     const std::string& group_name,
     const std::string& base_name,
@@ -56,18 +56,18 @@ bool TRAC_IKKinematicsPlugin::initialize(
     ros::NodeHandle node_handle("~");
     urdf::Model robot_model;
 
-    if (!TRAC_IK::LoadModelOverride(node_handle, robot_description, robot_model)) {
-        ROS_WARN_STREAM_NAMED("trac_ik", "Failed to load robot model");
+    if (!Deterministic_TRAC_IK::LoadModelOverride(node_handle, robot_description, robot_model)) {
+        ROS_WARN_STREAM_NAMED("deterministic_trac_ik", "Failed to load robot model");
         return false;
     }
 
-    ROS_DEBUG_STREAM_NAMED("trac_ik","Reading joints and links from URDF");
+    ROS_DEBUG_STREAM_NAMED("deterministic_trac_ik","Reading joints and links from URDF");
 
-    if (!TRAC_IK::InitKDLChain(
+    if (!Deterministic_TRAC_IK::InitKDLChain(
         robot_model, base_name, tip_name,
         chain_, link_names_, joint_names_, joint_min_, joint_max_))
     {
-        ROS_WARN_STREAM_NAMED("trac_ik", "Failed to initialize KDL chain");
+        ROS_WARN_STREAM_NAMED("deterministic_trac_ik", "Failed to initialize KDL chain");
         return false;
     }
 
@@ -75,7 +75,7 @@ bool TRAC_IKKinematicsPlugin::initialize(
     tmp_out_.resize(chain_.getNrOfJoints());
 
     lookupParam("position_only_ik", position_ik_, false);
-    ROS_DEBUG_STREAM_NAMED("trac_ik plugin", "Position only IK = " << position_ik_);
+    ROS_DEBUG_STREAM_NAMED("deterministic_trac_ik plugin", "Position only IK = " << position_ik_);
 
     bounds_ = KDL::Twist::Zero();
 
@@ -87,36 +87,36 @@ bool TRAC_IKKinematicsPlugin::initialize(
 
     std::string solve_type;
     lookupParam("solve_type", solve_type, std::string("Speed"));
-    ROS_DEBUG_NAMED("trac_ik plugin", "Using solve type %s", solve_type.c_str());
+    ROS_DEBUG_NAMED("deterministic_trac_ik plugin", "Using solve type %s", solve_type.c_str());
 
     if (solve_type == "Manipulation1") {
-        solve_type_ = TRAC_IK::Manip1;
+        solve_type_ = Deterministic_TRAC_IK::Manip1;
     }
     else if (solve_type == "Manipulation2") {
-        solve_type_ = TRAC_IK::Manip2;
+        solve_type_ = Deterministic_TRAC_IK::Manip2;
     }
     else if (solve_type == "Distance") {
-        solve_type_ = TRAC_IK::Distance;
+        solve_type_ = Deterministic_TRAC_IK::Distance;
     }
     else {
         if (solve_type != "Speed") {
-            ROS_WARN_STREAM_NAMED("trac_ik", solve_type << " is not a valid solve_type; setting to default: Speed");
+            ROS_WARN_STREAM_NAMED("deterministic_trac_ik", solve_type << " is not a valid solve_type; setting to default: Speed");
         }
-        solve_type_ = TRAC_IK::Speed;
+        solve_type_ = Deterministic_TRAC_IK::Speed;
     }
 
     // Same as MoveIt's KDL plugin
     double epsilon;
     lookupParam("epsilon", epsilon, 1e-5);
 
-    solver_.reset(new TRAC_IK::TRAC_IK(
+    solver_.reset(new Deterministic_TRAC_IK::Deterministic_TRAC_IK(
             chain_, joint_min_, joint_max_, 1000, epsilon, solve_type_));
 
     active_ = true;
     return true;
 }
 
-int TRAC_IKKinematicsPlugin::getKDLSegmentIndex(const std::string &name) const
+int Deterministic_TRAC_IKKinematicsPlugin::getKDLSegmentIndex(const std::string &name) const
 {
     int i = 0;
     while (i < (int) chain_.getNrOfSegments()) {
@@ -128,7 +128,7 @@ int TRAC_IKKinematicsPlugin::getKDLSegmentIndex(const std::string &name) const
     return -1;
 }
 
-bool TRAC_IKKinematicsPlugin::getPositionFK(
+bool Deterministic_TRAC_IKKinematicsPlugin::getPositionFK(
     const std::vector<std::string> &link_names,
     const std::vector<double> &joint_angles,
     std::vector<geometry_msgs::Pose> &poses) const
@@ -137,7 +137,7 @@ bool TRAC_IKKinematicsPlugin::getPositionFK(
 
     poses.resize(link_names.size());
     if (joint_angles.size() != chain_.getNrOfJoints()) {
-        ROS_ERROR_NAMED("trac_ik", "Joint angles vector must have size: %d", chain_.getNrOfJoints());
+        ROS_ERROR_NAMED("deterministic_trac_ik", "Joint angles vector must have size: %d", chain_.getNrOfJoints());
         return false;
     }
 
@@ -154,11 +154,11 @@ bool TRAC_IKKinematicsPlugin::getPositionFK(
 
     bool valid = true;
     for (unsigned int i = 0; i < poses.size(); i++) {
-        ROS_DEBUG_NAMED("trac_ik","End effector index: %d", getKDLSegmentIndex(link_names[i]));
+        ROS_DEBUG_NAMED("deterministic_trac_ik","End effector index: %d", getKDLSegmentIndex(link_names[i]));
         if (fk_solver.JntToCart(jnt_pos_in, p_out, getKDLSegmentIndex(link_names[i])) >= 0) {
             tf::poseKDLToMsg(p_out, poses[i]);
         } else {
-            ROS_ERROR_NAMED("trac_ik", "Could not compute FK for %s", link_names[i].c_str());
+            ROS_ERROR_NAMED("deterministic_trac_ik", "Could not compute FK for %s", link_names[i].c_str());
             valid = false;
         }
     }
@@ -166,7 +166,7 @@ bool TRAC_IKKinematicsPlugin::getPositionFK(
     return valid;
 }
 
-bool TRAC_IKKinematicsPlugin::getPositionIK(
+bool Deterministic_TRAC_IKKinematicsPlugin::getPositionIK(
     const geometry_msgs::Pose &ik_pose,
     const std::vector<double> &ik_seed_state,
     std::vector<double> &solution,
@@ -187,7 +187,7 @@ bool TRAC_IKKinematicsPlugin::getPositionIK(
             options);
 }
 
-bool TRAC_IKKinematicsPlugin::searchPositionIK(
+bool Deterministic_TRAC_IKKinematicsPlugin::searchPositionIK(
     const geometry_msgs::Pose &ik_pose,
     const std::vector<double> &ik_seed_state, double timeout,
     std::vector<double> &solution,
@@ -208,7 +208,7 @@ bool TRAC_IKKinematicsPlugin::searchPositionIK(
             options);
 }
 
-bool TRAC_IKKinematicsPlugin::searchPositionIK(
+bool Deterministic_TRAC_IKKinematicsPlugin::searchPositionIK(
     const geometry_msgs::Pose &ik_pose,
     const std::vector<double> &ik_seed_state, double timeout,
     const std::vector<double> &consistency_limits,
@@ -228,7 +228,7 @@ bool TRAC_IKKinematicsPlugin::searchPositionIK(
             options);
 }
 
-bool TRAC_IKKinematicsPlugin::searchPositionIK(
+bool Deterministic_TRAC_IKKinematicsPlugin::searchPositionIK(
     const geometry_msgs::Pose &ik_pose,
     const std::vector<double> &ik_seed_state,
     double timeout,
@@ -249,7 +249,7 @@ bool TRAC_IKKinematicsPlugin::searchPositionIK(
             options);
 }
 
-bool TRAC_IKKinematicsPlugin::searchPositionIK(
+bool Deterministic_TRAC_IKKinematicsPlugin::searchPositionIK(
     const geometry_msgs::Pose &ik_pose,
     const std::vector<double> &ik_seed_state,
     double timeout,
@@ -270,7 +270,7 @@ bool TRAC_IKKinematicsPlugin::searchPositionIK(
             options);
 }
 
-bool TRAC_IKKinematicsPlugin::searchPositionIK(
+bool Deterministic_TRAC_IKKinematicsPlugin::searchPositionIK(
     const geometry_msgs::Pose &ik_pose,
     const std::vector<double> &ik_seed_state,
     double timeout,
@@ -280,12 +280,12 @@ bool TRAC_IKKinematicsPlugin::searchPositionIK(
     const std::vector<double> &consistency_limits,
     const kinematics::KinematicsQueryOptions &options) const
 {
-    ROS_DEBUG_STREAM_NAMED("trac_ik","getPositionIK");
+    ROS_DEBUG_STREAM_NAMED("deterministic_trac_ik","getPositionIK");
 
     assert(active_);
 
     if (ik_seed_state.size() != chain_.getNrOfJoints()) {
-        ROS_ERROR_STREAM_NAMED("trac_ik", "Seed state must have size " << chain_.getNrOfJoints() << " instead of size " << ik_seed_state.size());
+        ROS_ERROR_STREAM_NAMED("deterministic_trac_ik", "Seed state must have size " << chain_.getNrOfJoints() << " instead of size " << ik_seed_state.size());
         error_code.val = error_code.NO_IK_SOLUTION;
         return false;
     }
@@ -322,16 +322,16 @@ bool TRAC_IKKinematicsPlugin::searchPositionIK(
 
     solution_callback(ik_pose, solution, error_code);
     if (error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS) {
-        ROS_DEBUG_STREAM_NAMED("trac_ik","Solution passes callback");
+        ROS_DEBUG_STREAM_NAMED("deterministic_trac_ik","Solution passes callback");
         return true;
     } else {
-        ROS_DEBUG_STREAM_NAMED("trac_ik","Solution has error code " << error_code);
+        ROS_DEBUG_STREAM_NAMED("deterministic_trac_ik","Solution has error code " << error_code);
         return false;
     }
 }
 
-} // namespace trac_ik_kinematics_plugin
+} // namespace deterministic_trac_ik_kinematics_plugin
 
-//register TRAC_IKKinematicsPlugin as a KinematicsBase implementation
+//register Deterministic_TRAC_IKKinematicsPlugin as a KinematicsBase implementation
 #include <pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS(trac_ik_kinematics_plugin::TRAC_IKKinematicsPlugin, kinematics::KinematicsBase);
+PLUGINLIB_EXPORT_CLASS(deterministic_trac_ik_kinematics_plugin::Deterministic_TRAC_IKKinematicsPlugin, kinematics::KinematicsBase);

@@ -1,5 +1,5 @@
-#ifndef TRAC_IK_UTILS_H
-#define TRAC_IK_UTILS_H
+#ifndef DETERMINISTIC_TRAC_IK_UTILS_H
+#define DETERMINISTIC_TRAC_IK_UTILS_H
 
 // standard includes
 #include <stdlib.h>
@@ -12,7 +12,7 @@
 #include <kdl/jntarray.hpp>
 #include <urdf/model.h>
 
-namespace TRAC_IK {
+namespace Deterministic_TRAC_IK {
 
 bool LoadModelOverride(
     const ros::NodeHandle& nh,
@@ -29,7 +29,7 @@ bool InitKDLChain(
     KDL::JntArray& joint_min,
     KDL::JntArray& joint_max);
 
-} // namespace TRAC_IK
+} // namespace Deterministic_TRAC_IK
 
 namespace KDL {
 

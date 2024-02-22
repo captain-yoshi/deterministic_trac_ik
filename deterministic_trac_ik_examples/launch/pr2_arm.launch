@@ -8,7 +8,7 @@
   <param name="robot_description" command="$(find xacro)/xacro.py '$(find pr2_description)/robots/pr2.urdf.xacro'" />
 
 
-  <node name="trac_ik_tests" pkg="trac_ik_examples" type="ik_tests" output="screen">
+  <node name="deterministic_trac_ik_tests" pkg="deterministic_trac_ik_examples" type="ik_tests" output="screen">
     <param name="num_samples" value="$(arg num_samples)"/>
     <param name="chain_start" value="$(arg chain_start)"/>
     <param name="chain_end" value="$(arg chain_end)"/>
