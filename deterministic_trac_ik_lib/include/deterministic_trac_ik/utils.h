@@ -20,7 +20,7 @@ bool LoadModelOverride(
     urdf::Model& model);
 
 bool InitKDLChain(
-    const urdf::Model& model,
+    const urdf::ModelInterface& model,
     const std::string& base_name,
     const std::string& tip_name,
     KDL::Chain& chain,
