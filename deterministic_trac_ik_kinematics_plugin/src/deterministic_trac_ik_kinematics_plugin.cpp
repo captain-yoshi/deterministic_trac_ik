@@ -39,32 +39,52 @@ OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <deterministic_trac_ik/deterministic_trac_ik.hpp>
 #include <deterministic_trac_ik/utils.h>
 #include <urdf/model.h>
+#include <moveit/robot_model/robot_model.h>
 
 namespace deterministic_trac_ik_kinematics_plugin {
 
+bool LoadModelOverride(
+    const moveit::core::RobotModel& robot_model,
+    urdf::ModelInterfaceSharedPtr& urdf)
+{
+  // RobotModel stores a pointer to the parsed URDF model
+  urdf = robot_model.getURDF();
+  if (!urdf) {
+    ROS_ERROR_NAMED("deterministic_trac_ik", "RobotModel has no URDF attached");
+    return false;
+  }
+  return true;
+}
+
 bool Deterministic_TRAC_IKKinematicsPlugin::initialize(
-    const std::string& robot_description,
+    const moveit::core::RobotModel& robot_model,
     const std::string& group_name,
     const std::string& base_name,
-    const std::string& tip_name,
+    const std::vector<std::string>& tip_frames,
     double search_discretization)
 {
     ROS_DEBUG_NAMED("trac-ik plugin", "Initialize TRAC-IK Kinematics Plugin");
 
-    setValues(robot_description, group_name, base_name, tip_name, search_discretization);
+    setValues("", group_name, base_name, tip_frames, search_discretization);
 
     ros::NodeHandle node_handle("~");
-    urdf::Model robot_model;
+    urdf::ModelInterfaceSharedPtr model;
 
-    if (!Deterministic_TRAC_IK::LoadModelOverride(node_handle, robot_description, robot_model)) {
+    if (!LoadModelOverride(robot_model, model)) {
         ROS_WARN_STREAM_NAMED("deterministic_trac_ik", "Failed to load robot model");
         return false;
     }
 
     ROS_DEBUG_STREAM_NAMED("deterministic_trac_ik","Reading joints and links from URDF");
 
+    if(tip_frames.empty() or tip_frames.size() > 1)
+    {
+        ROS_WARN_STREAM_NAMED("deterministic_trac_ik","tip frames must be exactly one");
+        return false;
+    }
+
     if (!Deterministic_TRAC_IK::InitKDLChain(
-        robot_model, base_name, tip_name,
+        *model, base_name, tip_frames[0],
         chain_, link_names_, joint_names_, joint_min_, joint_max_))
     {
         ROS_WARN_STREAM_NAMED("deterministic_trac_ik", "Failed to initialize KDL chain");
